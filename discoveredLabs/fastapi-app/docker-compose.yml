@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  fastapi-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: reddit-analyzer
+    ports:
+      - "8000:8000"
+    environment:
+      - PUSHSHIFT_BASE_URL=https://api.pushshift.io/reddit
+      - MAX_POSTS_PER_REQUEST=100
+    volumes:
+      - ./app:/app/app  # Mount for development (hot reload)
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
